@@ -1,9 +1,5 @@
 #include <stdio.h>
-#include <util/delay.h>
-
 #include "uart.h"
-
-#define PAUSE_DELAY_MS 1000
 
 int main(void) {    
 
@@ -11,11 +7,21 @@ int main(void) {
     stdout = &uart_output;
     stdin  = &uart_input;
                 
+    int input;
+
     while (1) {
-        if (puts("Hello world!") == 0) {
+        if (puts("Enter integer:") == 0) {
             break;
         }
-        _delay_ms(PAUSE_DELAY_MS);
+        if (scanf("%d", &input) == EOF) {
+            break;
+        }
+        if (puts("Your integer, incremented:") == 0) {
+            break;
+        }
+        if (printf("%d\n", input + 1) == EOF) {
+            break;
+        }
     }
     return 0;
 }
