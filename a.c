@@ -38,7 +38,7 @@ int main(void) {
             error_code = 1;
             break;
         }
-        if (printf("%d", input + 1) == EOF) {
+        if (printf("%d\n", input + 1) == EOF) {
             error_code = 2;
             break;
         }
