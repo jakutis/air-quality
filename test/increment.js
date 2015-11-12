@@ -1,6 +1,7 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var assert = require('assert');
+var debug = require('debug')('air-quality');
 
 assert(process.env.DEVICE);
 
@@ -15,11 +16,13 @@ describe('device', function () {
         var input = Math.round(Math.random() * 1000);
         var expectedOutput = input + 1;
         return Promise.using(open(process.env.DEVICE, 'r+'), function (fd) {
+            debug('Opened ' + process.env.DEVICE);
             var readBuffer = new Buffer(expectedOutput.toString().length);
             var writeBuffer = new Buffer(input + '\r');
             return Promise
                 .resolve(fs.writeAsync(fd, writeBuffer, 0, writeBuffer.length))
                 .then(function () {
+                    debug('Reading');
                     fs.readSync(fd, readBuffer, 0, readBuffer.length);
                 })
                 .then(function () {
