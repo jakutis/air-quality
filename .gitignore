@@ -1,6 +1,2 @@
-/a
-/a.hex
-/a.o
-/uart.o
-/device
 /test/node_modules
+/build
