@@ -1,7 +1,8 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var assert = require('assert');
-var device = fs.readFileSync(__dirname + '/../device').toString().trim();
+
+assert(process.env.DEVICE);
 
 function open(path, flags) {
     return fs.openAsync(path, flags).disposer(function (fd) {
@@ -13,7 +14,7 @@ describe('device', function () {
     it('increments a given integer', function () {
         var input = Math.round(Math.random() * 1000);
         var expectedOutput = input + 1;
-        return Promise.using(open(device, 'r+'), function (fd) {
+        return Promise.using(open(process.env.DEVICE, 'r+'), function (fd) {
             var readBuffer = new Buffer(expectedOutput.toString().length);
             var writeBuffer = new Buffer(input + '\r');
             return Promise
