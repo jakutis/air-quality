@@ -1,7 +1,5 @@
-/lib/a
-/lib/a.hex
-/lib/a.o
-/lib/uart.o
-/lib/micros.o
-/device
+/app
+/app.hex
+/lib/app.o
+/lib/system.o
 /test/node_modules

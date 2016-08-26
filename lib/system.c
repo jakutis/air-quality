@@ -1,3 +1,6 @@
+#include <avr/io.h>
+#include <stdio.h>
+#include <util/setbaud.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
 #include <compat/deprecated.h>
@@ -14,8 +17,34 @@ ISR(TIMER0_OVF_vect)
   timer0_overflow_count++;
 }
 
-void init_arduino()
-{
+void system_uart_init(void) {
+  UBRR0H = UBRRH_VALUE;
+  UBRR0L = UBRRL_VALUE;
+
+#if USE_2X
+  UCSR0A |= _BV(U2X0);
+#else
+  UCSR0A &= ~(_BV(U2X0));
+#endif
+
+  UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */ 
+  UCSR0B = _BV(RXEN0) | _BV(TXEN0);   /* Enable RX and TX */    
+}
+
+void system_uart_putchar(char c, FILE *stream) {
+  if (c == '\n') {
+    system_uart_putchar('\r', stream);
+  }
+  loop_until_bit_is_set(UCSR0A, UDRE0);
+  UDR0 = c;
+}
+
+char system_uart_getchar(FILE *stream) {
+  loop_until_bit_is_set(UCSR0A, RXC0);
+  return UDR0;
+}
+
+void system_timers_init(void) {
   // this needs to be called before setup() or some functions won't
   // work there
   sei();
@@ -167,7 +196,7 @@ void init_arduino()
 #endif
 }
 
-uint32_t micros() {
+uint32_t system_micros() {
   uint32_t m;
   uint8_t oldSREG = SREG, t;
 
@@ -190,47 +219,11 @@ uint32_t micros() {
 #endif
 
   SREG = oldSREG;
-  
+
   return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
 }
 
-/*
-// Calculate the value needed for 
-// the CTC match value in OCR1A.
-#define CTC_MATCH_OVERFLOW ((F_CPU / 1000) / 8)
-
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/atomic.h>
- 
-//volatile unsigned long timer1_micros;
-ISR (TIMER1_COMPA_vect)
-{
-    timer1_micros++;
+void system_init(void) {
+  system_timers_init();
+  system_uart_init();
 }
-
-unsigned long micros () {
-    unsigned long value;
-    ATOMIC_BLOCK(ATOMIC_FORCEON) {
-        value = timer1_micros;
-    }
-    return value;
-}
-
-void micros_init()
-{
-    // CTC mode, Clock/8
-    TCCR1B |= (1 << WGM12) | (1 << CS11);
-
-    // Load the high byte, then the low byte
-    // into the output compare
-    OCR1AH = (CTC_MATCH_OVERFLOW >> 8);
-    OCR1AL = CTC_MATCH_OVERFLOW;
-
-    // Enable the compare match interrupt
-    TIMSK1 |= (1 << OCIE1A);
-
-    // Now enable global interrupts
-    sei();
-}
-*/
