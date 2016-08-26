@@ -1,2 +1,7 @@
+/lib/a
+/lib/a.hex
+/lib/a.o
+/lib/uart.o
+/lib/micros.o
+/device
 /test/node_modules
-/build
