@@ -102,9 +102,7 @@ uint8_t state_read_sensors() {
   ce = decode(data + 32);
   ca = decode(data) + decode(data + 8) + decode(data + 16) + decode(data + 24);
 
-  fprintf(&system_uart_output, "humidity:          %" PRIu16 "\n", h);
-  fprintf(&system_uart_output, "temperature:       %" PRIu16 "\n", t);
-  fprintf(&system_uart_output, "\n");
+  fprintf(&system_uart_output, "{\"humidity\":%" PRIu16 ",\"temperature\":%" PRIu16 "}\n", h, t);
 
   if (ce != ca) {
     return STATE_BLINK_FAILURE;
