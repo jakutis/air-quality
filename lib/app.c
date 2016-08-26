@@ -82,7 +82,9 @@ uint8_t state_read_sensors() {
     if (timeout) {
       break;
     }
-    data[cycles - 2] = (system_micros() - start) > 50;
+    if (cycles >= 2) {
+      data[cycles - 2] = (system_micros() - start) > 50;
+    }
 
     start = system_micros();
     while (!readD(2) && !(timeout = ((system_micros() - start) > 1000000)));
